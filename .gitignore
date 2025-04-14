@@ -1,0 +1,12 @@
+# Ignora a pasta node_modules
+node_modules/
+
+# Ignora o arquivo de variáveis de ambiente
+.env
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
