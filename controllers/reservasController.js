@@ -2,15 +2,22 @@
 
 const Reserva = require('../models/Reserva');
 
-// GET - Listar todas as reservas
-const listarReservas = async (req, res) => {
+const listarReservas = async (req, res, next) => {
   try {
-    const reservas = await Reserva.find();
-    res.json(reservas);
+    const reservas = await Reserva.find(); // Listar todas as reservas
+
+    if (!reservas || reservas.length === 0) {
+      const error = new Error('Nenhuma reserva encontrada');
+      error.statusCode = 404;
+      throw error; // Pode usar next(error) também
+    }
+
+    res.status(200).json(reservas);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar reservas' });
+    next(error); // envia o erro pro middleware de erro global
   }
 };
+
 
 // POST - Criar uma nova reserva
 const criarReserva = async (req, res) => {

@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const errorHandler = require('./middlewares/errorHandler'); // Importa corretamente o middleware
+
 
 dotenv.config();
 connectDB(); // ← Faz a conexão com o MongoDB
@@ -16,6 +18,9 @@ app.use(express.json());
 // Rotas
 const reservasRoutes = require('./routes/reservas.routes');
 app.use('/api/reservas', reservasRoutes);
+
+// Middleware de tratamento de erro – DEIXE AQUI NO FINAL
+app.use(errorHandler);
 
 app.get('/', (req, res) => {
   res.send('API funcionando!');
