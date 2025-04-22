@@ -15,6 +15,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+// carrega os models
+require('./models/usuario'); // <-- Aqui está o que precisa
+
 // Rotas
 const reservasRoutes = require('./routes/reservas.routes');
 app.use('/api/reservas', reservasRoutes);
