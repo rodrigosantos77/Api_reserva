@@ -1,12 +1,14 @@
 // controllers/reservasController.js
 
-const Reserva = require('../models/Reserva');
+const Reserva = require('../models/reserva');
+const Usuario = require('../models/usuario');
 
 // GET - Listar todas as reservas com os dados do usuário
 const listarReservas = async (req, res, next) => {
   try {
-    const reservas = await Reserva.find().populate('usuario'); // Aqui é o ponto chave!
-
+    const reservas = await Reserva.find()
+      .populate('usuario');
+    
     if (!reservas || reservas.length === 0) {
       const error = new Error('Nenhuma reserva encontrada');
       error.statusCode = 404;
@@ -19,26 +21,56 @@ const listarReservas = async (req, res, next) => {
   }
 };
 
-
 // POST - Criar uma nova reserva
 const criarReserva = async (req, res) => {
-  const { usuario, dataEntrada, dataSaida, numeroQuarto } = req.body;
+  const {
+    usuario,
+    dataEntrada,
+    dataSaida,
+    numeroQuarto,
+    status,
+    valor,
+    formaPagamento,
+    numeroToalhas,
+    numeroLencois,
+    cafeDaManha,
+    horarioEntrada
+  } = req.body;
 
-  // Validação manual: garantir que todos os campos obrigatórios foram preenchidos
-  if (!usuario || !dataEntrada || !dataSaida || !numeroQuarto) {
+  // Validação manual de campos obrigatórios
+  const camposObrigatorios = [
+    'usuario', 'dataEntrada', 'dataSaida', 'numeroQuarto',
+    'status', 'valor', 'formaPagamento',
+    'numeroToalhas', 'numeroLencois', 'cafeDaManha', 'horarioEntrada'
+  ];
+  const faltando = camposObrigatorios.filter(c => req.body[c] == null);
+  if (faltando.length > 0) {
     return res.status(400).json({
-      erro: 'Todos os campos são obrigatórios.',
-      campos: ['usuario', 'dataEntrada', 'dataSaida', 'numeroQuarto']
+      erro: 'Campos obrigatórios faltando.',
+      faltando
     });
   }
 
   try {
-    // Criar a nova reserva com o ID do usuário
+    // Verificar se o usuário existe
+    const usuarioExistente = await Usuario.findById(usuario);
+    if (!usuarioExistente) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    // Criar a nova reserva
     const novaReserva = new Reserva({
       usuario,
       dataEntrada,
       dataSaida,
-      numeroQuarto
+      numeroQuarto,
+      status,
+      valor,
+      formaPagamento,
+      numeroToalhas,
+      numeroLencois,
+      cafeDaManha,
+      horarioEntrada
     });
 
     const reservaSalva = await novaReserva.save();
@@ -48,13 +80,30 @@ const criarReserva = async (req, res) => {
   }
 };
 
-
 // PUT - Atualizar uma reserva existente
 const atualizarReserva = async (req, res) => {
+  const {
+    status,
+    valor,
+    formaPagamento,
+    numeroToalhas,
+    numeroLencois,
+    cafeDaManha,
+    horarioEntrada
+  } = req.body;
+
   try {
     const reservaAtualizada = await Reserva.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        status,
+        valor,
+        formaPagamento,
+        numeroToalhas,
+        numeroLencois,
+        cafeDaManha,
+        horarioEntrada
+      },
       { new: true }
     );
     if (!reservaAtualizada) {
