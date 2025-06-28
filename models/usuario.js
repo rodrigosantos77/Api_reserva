@@ -10,20 +10,23 @@ const usuarioSchema = new mongoose.Schema({
     required: [true, 'O e-mail é obrigatório'],
     unique: true
   },
+  senha: {
+    type: String,
+    required: [true, 'A senha é obrigatória']
+  },
   tipoUsuario: {
     type: String,
-    enum: ['cliente', 'atendente'],  // Definindo os dois tipos possíveis
+    enum: ['cliente', 'atendente'],
     required: [true, 'O tipo de usuário é obrigatório']
   },
-  telefone: {  // Campo adicional para telefone
+  telefone: {
     type: String,
     required: false
   },
-  documento: {  // Campo para documentos do cliente
+  documento: {
     type: String,
     required: false
   }
-  // senha pode vir depois, se for implementar login/autenticação
 });
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
