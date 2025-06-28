@@ -5,31 +5,27 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
 
 dotenv.config();
-connectDB(); // conecta no MongoDB Atlas
+console.log('MongoDB URI:', process.env.MONGODB_URI);  // Verifique se a URI está correta
 
+connectDB();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 3000;
 
-// Middlewares globais
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Rota raiz para teste
-app.get('/', (req, res) => {
-  res.send('API funcionando!');
-});
-
-// Carregamento de rotas
+// Rotas
 const usuarioRoutes = require('./routes/usuarioRoutes');
 app.use('/api/usuarios', usuarioRoutes);
-
 const reservasRoutes = require('./routes/reservas.routes');
 app.use('/api/reservas', reservasRoutes);
 
-// Middleware de tratamento de erro – deve vir após as rotas
+// Health check
+app.get('/', (req, res) => res.send('API funcionando!'));
+
+// Error handler
 app.use(errorHandler);
 
-// Inicialização do servidor
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+// Apenas um listen no final
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
