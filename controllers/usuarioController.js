@@ -57,10 +57,10 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: usuario._id, tipo: usuario.tipo },
-      process.env.JWT_SECRET, // ou 'uma_senha_bem_segura' se ainda estiver usando string fixa
-      { expiresIn: '1d' }
-    );
+  { id: usuario._id, tipo: usuario.tipoUsuario }, // ← corrigido aqui!
+  process.env.JWT_SECRET,
+  { expiresIn: '1d' }
+  );
 
     // 🔍 Aqui você vê o token no terminal:
     console.log('TOKEN GERADO:', token);

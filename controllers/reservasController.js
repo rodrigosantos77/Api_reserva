@@ -1,27 +1,22 @@
 // controllers/reservasController.js
-
 const Reserva = require('../models/reserva');
 const Usuario = require('../models/usuario');
 
-// GET - Listar reservas (só do cliente, ou todas se for atendente)
+// GET - Listar reservas (cliente vê só as dele, atendente vê todas)
 const listarReservas = async (req, res, next) => {
   try {
     let reservas;
 
-    if (req.usuarioTipo === 'cliente') {
-      // Se for cliente, buscar apenas as reservas associadas ao ID do usuário autenticado
-      reservas = await Reserva.find({ usuario: req.usuarioId })
-        .populate('usuario', 'nome email tipoUsuario');
+    if (req.usuarioTipo === 'atendente') {
+      // Atendente vê todas as reservas
+      reservas = await Reserva.find().populate('usuario');
     } else {
-      // Se for atendente (ou outro tipo), buscar todas as reservas
-      reservas = await Reserva.find()
-        .populate('usuario', 'nome email tipoUsuario');
+      // Cliente vê só as dele
+      reservas = await Reserva.find({ usuario: req.usuarioId }).populate('usuario');
     }
 
     if (!reservas || reservas.length === 0) {
-      const error = new Error('Nenhuma reserva encontrada');
-      error.statusCode = 404;
-      throw error;
+      return res.status(404).json({ erro: 'Nenhuma reserva encontrada' });
     }
 
     res.status(200).json(reservas);
@@ -30,10 +25,9 @@ const listarReservas = async (req, res, next) => {
   }
 };
 
-// POST - Criar uma nova reserva
+// POST - Criar uma nova reserva (cliente pode criar a sua, atendente também)
 const criarReserva = async (req, res) => {
   const {
-    usuario,
     dataEntrada,
     dataSaida,
     numeroQuarto,
@@ -46,9 +40,9 @@ const criarReserva = async (req, res) => {
     horarioEntrada
   } = req.body;
 
-  // Validação manual de campos obrigatórios
+  // Campos obrigatórios
   const camposObrigatorios = [
-    'usuario', 'dataEntrada', 'dataSaida', 'numeroQuarto',
+    'dataEntrada', 'dataSaida', 'numeroQuarto',
     'status', 'valor', 'formaPagamento',
     'numeroToalhas', 'numeroLencois', 'cafeDaManha', 'horarioEntrada'
   ];
@@ -61,15 +55,15 @@ const criarReserva = async (req, res) => {
   }
 
   try {
-    // Verificar se o usuário existe
-    const usuarioExistente = await Usuario.findById(usuario);
+    // Verifica se o usuário existe (pelo ID do token)
+    const usuarioExistente = await Usuario.findById(req.usuarioId);
     if (!usuarioExistente) {
       return res.status(404).json({ erro: 'Usuário não encontrado' });
     }
 
-    // Criar a nova reserva
+    // Cria a reserva associando automaticamente o usuário do token
     const novaReserva = new Reserva({
-      usuario,
+      usuario: req.usuarioId,
       dataEntrada,
       dataSaida,
       numeroQuarto,
@@ -89,7 +83,7 @@ const criarReserva = async (req, res) => {
   }
 };
 
-// PUT - Atualizar uma reserva existente
+// PUT - Atualizar uma reserva (cliente só pode editar a própria, atendente pode tudo)
 const atualizarReserva = async (req, res) => {
   const {
     status,
@@ -102,35 +96,46 @@ const atualizarReserva = async (req, res) => {
   } = req.body;
 
   try {
-    const reservaAtualizada = await Reserva.findByIdAndUpdate(
-      req.params.id,
-      {
-        status,
-        valor,
-        formaPagamento,
-        numeroToalhas,
-        numeroLencois,
-        cafeDaManha,
-        horarioEntrada
-      },
-      { new: true }
-    );
-    if (!reservaAtualizada) {
+    const reserva = await Reserva.findById(req.params.id);
+
+    if (!reserva) {
       return res.status(404).json({ erro: 'Reserva não encontrada.' });
     }
+
+    // Se for cliente, só pode editar se for dono da reserva
+    if (req.usuarioTipo === 'cliente' && reserva.usuario.toString() !== req.usuarioId) {
+      return res.status(403).json({ erro: 'Acesso não autorizado.' });
+    }
+
+    // Atualiza os campos
+    reserva.status = status || reserva.status;
+    reserva.valor = valor || reserva.valor;
+    reserva.formaPagamento = formaPagamento || reserva.formaPagamento;
+    reserva.numeroToalhas = numeroToalhas || reserva.numeroToalhas;
+    reserva.numeroLencois = numeroLencois || reserva.numeroLencois;
+    reserva.cafeDaManha = cafeDaManha != null ? cafeDaManha : reserva.cafeDaManha;
+    reserva.horarioEntrada = horarioEntrada || reserva.horarioEntrada;
+
+    const reservaAtualizada = await reserva.save();
     res.json(reservaAtualizada);
   } catch (error) {
     res.status(400).json({ erro: 'Erro ao atualizar reserva. Verifique os dados.' });
   }
 };
 
-// DELETE - Remover uma reserva
+// DELETE - Apenas atendente pode deletar reservas
 const deletarReserva = async (req, res) => {
   try {
+    // Verifica se é atendente
+    if (req.usuarioTipo !== 'atendente') {
+      return res.status(403).json({ erro: 'Apenas atendentes podem deletar reservas.' });
+    }
+
     const reservaDeletada = await Reserva.findByIdAndDelete(req.params.id);
     if (!reservaDeletada) {
       return res.status(404).json({ erro: 'Reserva não encontrada.' });
     }
+
     res.json({ mensagem: 'Reserva deletada com sucesso' });
   } catch (error) {
     res.status(400).json({ erro: 'Erro ao deletar reserva' });
@@ -141,5 +146,5 @@ module.exports = {
   listarReservas,
   criarReserva,
   atualizarReserva,
-  deletarReserva,
+  deletarReserva
 };
