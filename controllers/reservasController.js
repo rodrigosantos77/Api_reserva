@@ -3,12 +3,21 @@
 const Reserva = require('../models/reserva');
 const Usuario = require('../models/usuario');
 
-// GET - Listar todas as reservas com os dados do usuário
+// GET - Listar reservas (só do cliente, ou todas se for atendente)
 const listarReservas = async (req, res, next) => {
   try {
-    const reservas = await Reserva.find()
-      .populate('usuario');
-    
+    let reservas;
+
+    if (req.usuarioTipo === 'cliente') {
+      // Se for cliente, buscar apenas as reservas associadas ao ID do usuário autenticado
+      reservas = await Reserva.find({ usuario: req.usuarioId })
+        .populate('usuario', 'nome email tipoUsuario');
+    } else {
+      // Se for atendente (ou outro tipo), buscar todas as reservas
+      reservas = await Reserva.find()
+        .populate('usuario', 'nome email tipoUsuario');
+    }
+
     if (!reservas || reservas.length === 0) {
       const error = new Error('Nenhuma reserva encontrada');
       error.statusCode = 404;

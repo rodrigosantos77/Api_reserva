@@ -41,7 +41,6 @@ const criarUsuario = async (req, res) => {
   res.status(500).json({ erro: 'Erro ao criar usuário.' });
 }
 };
-
 // Login com JWT
 const login = async (req, res) => {
   const { email, senha } = req.body;
@@ -58,12 +57,19 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-  { id: usuario._id, tipo: usuario.tipo },
-  process.env.JWT_SECRET,
-  { expiresIn: '1d' }
+      { id: usuario._id, tipo: usuario.tipo },
+      process.env.JWT_SECRET, // ou 'uma_senha_bem_segura' se ainda estiver usando string fixa
+      { expiresIn: '1d' }
     );
 
-    res.json({ token, usuario: { nome: usuario.nome, tipo: usuario.tipo } });
+    // 🔍 Aqui você vê o token no terminal:
+    console.log('TOKEN GERADO:', token);
+
+    res.json({
+      token,
+      usuario: { nome: usuario.nome, tipo: usuario.tipo }
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ erro: 'Erro ao fazer login' });
