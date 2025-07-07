@@ -61,6 +61,7 @@ const criarReserva = async (req, res) => {
       return res.status(404).json({ erro: 'Usuário não encontrado' });
     }
 
+    console.log('📦 Dados recebidos no body:', req.body);
     // Cria a reserva associando automaticamente o usuário do token
     const novaReserva = new Reserva({
       usuario: req.usuarioId,

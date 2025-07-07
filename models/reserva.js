@@ -45,10 +45,10 @@ const reservaSchema = new mongoose.Schema({
     required: [true, 'A informação sobre café da manhã é obrigatória']
   },
   horarioEntrada: {
-    type: String,
-    enum: ['manha', 'tarde', 'noite', 'madrugada'],
-    required: [true, 'O horário de entrada é obrigatório']
-  }
+  type: String,
+  required: [true, 'O horário de entrada é obrigatório']
+}
+
 });
 
 module.exports = mongoose.model('Reserva', reservaSchema);
