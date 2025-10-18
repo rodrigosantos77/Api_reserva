@@ -37,7 +37,7 @@ app.use('/api/reservas', reservasRoutes);
 //app.get('/', (req, res) => res.send('API funcionando!'));
 
 // Middleware de tratamento de erros
-app.use(errorHandler);
+//app.use(errorHandler);
 
 // Iniciar servidor
 app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
