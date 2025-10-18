@@ -31,7 +31,7 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 app.use('/api/usuarios', usuarioRoutes);
 
 const reservasRoutes = require('./routes/reservas.routes');
-app.use('/rota-reservas', reservasRoutes); // <-- MUDOU AQUI!
+app.use('/api/reservas', reservasRoutes);
 
 // Health check
 //app.get('/', (req, res) => res.send('API funcionando!'));
