@@ -10,7 +10,6 @@ const auth = require('../middlewares/auth'); // autentica se o token é válido
 const autorizaTipo = require('../middlewares/autorizaTipo'); // autoriza com base no tipo de usuário
 
 
-
 // ✅ Agora permite que tanto 'cliente' quanto 'atendente' criem reservas
 router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva);
 

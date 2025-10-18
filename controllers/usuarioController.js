@@ -41,6 +41,7 @@ const criarUsuario = async (req, res) => {
   res.status(500).json({ erro: 'Erro ao criar usuário.' });
 }
 };
+
 // Login com JWT
 const login = async (req, res) => {
   const { email, senha } = req.body;

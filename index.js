@@ -34,7 +34,7 @@ const reservasRoutes = require('./routes/reservas.routes');
 app.use('/api/reservas', reservasRoutes);
 
 // Health check
-app.get('/', (req, res) => res.send('API funcionando!'));
+//app.get('/', (req, res) => res.send('API funcionando!'));
 
 // Middleware de tratamento de erros
 app.use(errorHandler);
