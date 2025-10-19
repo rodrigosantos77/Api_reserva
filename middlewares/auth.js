@@ -12,7 +12,7 @@ const authMiddleware = (req, res, next) => {
   console.log('🔐 Token recebido no middleware:', token);
 
   try {
-    const decoded = jwt.verify(token, 'uma_senha_bem_segura'); // deve ser a mesma chave usada no login
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);// deve ser a mesma chave usada no login
     console.log('✅ Token decodificado com sucesso:', decoded);
 
     req.usuarioId = decoded.id;
