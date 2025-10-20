@@ -15,13 +15,10 @@ if (!process.env.MONGODB_URI) {
 }
 
 console.log('MongoDB URI carregada com sucesso.');
-
 // Conectar ao MongoDB Atlas
 connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 // Middlewares
 app.use(cors());
 app.use(express.json());
