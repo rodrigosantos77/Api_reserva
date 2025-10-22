@@ -27,8 +27,15 @@ app.use(express.json());
 const usuarioRoutes = require('./routes/usuarioRoutes');
 app.use('/api/usuarios', usuarioRoutes);
 
-const reservasRoutes = require('./routes/reservas.routes');
-app.use('/api/reservas', reservasRoutes);
+//const reservasRoutes = require('./routes/reservas.routes');
+//app.use('/api/reservas', reservasRoutes);
+
+
+// ADICIONE A ROTA DE TESTE DIRETO NO INDEX.JS
+app.get('/api/reservas', (req, res) => {
+    // Não precisa de auth nem nada, apenas responda OK
+    res.status(200).json({ mensagem: 'Rota de reservas FINALMENTE FUNCIONANDO!' });
+});
 
 // Health check
 //app.get('/', (req, res) => res.send('API funcionando!'));
