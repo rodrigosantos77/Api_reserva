@@ -1,30 +1,22 @@
-
-// routes/reservas.routes.js
+// /home/devserudo/sistema-reservas/backend/routes/reservas.routes.js (FINAL)
 
 const express = require('express');
 const router = express.Router();
 
+const reservasController = require('../controllers/reservasController'); // DESCOMENTE
+const auth = require('../middlewares/auth'); 
+const autorizaTipo = require('../middlewares/autorizaTipo'); 
 
-//const reservasController = require('../controllers/reservasController');
-//const auth = require('../middlewares/auth'); // autentica se o token é válido
-//const autorizaTipo = require('../middlewares/autorizaTipo'); // autoriza com base no tipo de usuário
-
-
-// ROTA DE TESTE SIMPLES (NÃO CHAMA O CONTROLLER)
-// =======================================================
-router.get('/', (req, res) => {
-    res.status(200).json({ mensagem: 'Rota de reservas TESTADA e FUNCIONANDO!' });
-});
-
+// ROTA DE TESTE SIMPLES (REMOVER)
 
 // ✅ Agora permite que tanto 'cliente' quanto 'atendente' criem reservas
-//router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva);
+router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva); // DESCOMENTE
 
 // GET continua liberado pra ambos, mas com filtragem no controller
-//router.get('/', auth, reservasController.listarReservas);
+router.get('/', auth, reservasController.listarReservas); // <--- DESCOMENTE ESTA ROTA
 
 // Essas ações seguem restritas só pro atendente
-//router.put('/:id', auth, autorizaTipo(['atendente']), reservasController.atualizarReserva);
-//router.delete('/:id', auth, autorizaTipo(['atendente']), reservasController.deletarReserva);
+router.put('/:id', auth, autorizaTipo(['atendente']), reservasController.atualizarReserva); // DESCOMENTE
+router.delete('/:id', auth, autorizaTipo(['atendente']), reservasController.deletarReserva); // DESCOMENTE
 
 module.exports = router;
