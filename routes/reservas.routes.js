@@ -1,22 +1,17 @@
-// /home/devserudo/sistema-reservas/backend/routes/reservas.routes.js (FINAL)
+// /home/devserudo/sistema-reservas/backend/routes/reservas.routes.js (VERSÃO FINAL DE PRODUÇÃO)
 
 const express = require('express');
 const router = express.Router();
+const reservasController = require('../controllers/reservasController'); // DEIXAR ATIVA
+const auth = require('../middlewares/auth'); // DEIXAR ATIVA
+const autorizaTipo = require('../middlewares/autorizaTipo'); // DEIXAR ATIVA
 
-const reservasController = require('../controllers/reservasController'); // DESCOMENTE
-const auth = require('../middlewares/auth'); 
-const autorizaTipo = require('../middlewares/autorizaTipo'); 
+// REMOVER ROTA DE TESTE (router.get('/', (req, res) => { ... }));
 
-// ROTA DE TESTE SIMPLES (REMOVER)
-
-// ✅ Agora permite que tanto 'cliente' quanto 'atendente' criem reservas
-router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva); // DESCOMENTE
-
-// GET continua liberado pra ambos, mas com filtragem no controller
-router.get('/', auth, reservasController.listarReservas); // <--- DESCOMENTE ESTA ROTA
-
-// Essas ações seguem restritas só pro atendente
-router.put('/:id', auth, autorizaTipo(['atendente']), reservasController.atualizarReserva); // DESCOMENTE
-router.delete('/:id', auth, autorizaTipo(['atendente']), reservasController.deletarReserva); // DESCOMENTE
+// Rotas de Produção Descomentadas:
+router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva);
+router.get('/', auth, reservasController.listarReservas); 
+router.put('/:id', auth, autorizaTipo(['atendente']), reservasController.atualizarReserva);
+router.delete('/:id', auth, autorizaTipo(['atendente']), reservasController.deletarReserva);
 
 module.exports = router;
