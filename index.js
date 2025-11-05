@@ -1,4 +1,5 @@
 
+/*
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -58,4 +59,52 @@ const reservasRoutes = require('./routes/reservas.routes');
 app.use('/api/reservas', reservasRoutes);
 
 // Iniciar servidor
-app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`)); */
+
+
+// index.js (VERSÃO DE TESTE DE ROTA)
+
+const express = require('express');
+const cors = require('cors'); // Manter
+
+// Rotas de teste: NÃO VAMOS IMPORTAR NADA ALÉM DO BÁSICO PARA NÃO QUEBRAR
+// const dotenv = require('dotenv');
+// const connectDB = require('./config/db'); // COMENTADO
+// const errorHandler = require('./middlewares/errorHandler'); // COMENTADO
+
+// const usuarioRoutes = require('./routes/usuarioRoutes'); // COMENTADO
+// const reservasRoutes = require('./routes/reservas.routes'); // COMENTADO
+
+
+// Não precisa carregar variáveis de ambiente para este teste
+// dotenv.config();
+// Não precisa de conexão com DB para este teste
+// connectDB(); 
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// ======================================
+// 🎯 CORS UNIVERSAL (TESTE EXTREMO)
+// ======================================
+// Permite que QUALQUER ORIGEM acesse o Back-end
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+
+
+// ======================================
+// 🎯 ROTA DE TESTE ÚNICA
+// Vamos mapear a rota de Login para um teste 200 simples
+// ======================================
+
+// URL COMPLETA ESPERADA: https://api-reservas-v3.onrender.com/api/usuarios/login
+app.post('/api/usuarios/login', (req, res) => {
+    // Retorna 200 para confirmar que a rota foi alcançada
+    return res.status(200).json({ mensagem: 'Rota alcançada com sucesso!' });
+});
+
+
+// Iniciar servidor
+app.listen(PORT, () => console.log(`🚀 Servidor de TESTE rodando na porta ${PORT}`));
+
+
