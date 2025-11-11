@@ -1,33 +1,15 @@
-// /home/devserudo/sistema-reservas/backend/routes/usuarioRoutes.js (VERSÃO DE TESTE)
+// /home/devserudo/sistema-reservas/backend/routes/usuarioRoutes.js (FINAL)
 
 const express = require('express');
 const router = express.Router();
-
-// Apenas importamos as funções que queremos manter do controller.
-// Removemos 'login' daqui para poder substituí-lo.
-const { listarUsuarios, criarUsuario } = require('../controllers/usuarioController');
-
+// ✅ Importa TODAS as funções do controller, incluindo 'login'
+const { listarUsuarios, criarUsuario, login } = require('../controllers/usuarioController');
 
 // Rotas existentes
 router.get('/', listarUsuarios);
 router.post('/', criarUsuario);
 
-// ✅ ROTA DE LOGIN DE TESTE SIMPLES (NÃO CHAMA O CONTROLLER REAL)
-router.post('/login', (req, res) => {
-    console.log("ROTA DE LOGIN DE TESTE ATIVA!");
-    
-    // Testa se o e-mail é 'joao@gmail.com' e a senha é '123456'
-    if (req.body.email === 'joao@gmail.com' && req.body.senha === '123456') { 
-        // Resposta de sucesso simulada (Código 200)
-        return res.status(200).json({ 
-            token: 'TEST_TOKEN_XYZ', 
-            nome: 'João Teste',
-            tipo: 'cliente' // Simula o retorno de tipo para o Front-end
-        });
-    }
-    
-    // Resposta de erro simulada (Código 401)
-    return res.status(401).json({ mensagem: 'Credenciais inválidas de teste' });
-});
+// ✅ Rota de login de produção
+router.post('/login', login); 
 
 module.exports = router;
