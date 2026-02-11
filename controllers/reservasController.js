@@ -9,14 +9,14 @@ const listarReservas = async (req, res, next) => {
 
     if (req.usuarioTipo === 'atendente') {
       // Atendente vê todas as reservas
-      reservas = await Reserva.find().populate('usuario');
+      reservas = await Reserva.find().populate('usuario', '-senha');
     } else {
       // Cliente vê só as dele
-      reservas = await Reserva.find({ usuario: req.usuarioId }).populate('usuario');
+      reservas = await Reserva.find({ usuario: req.usuarioId }).populate('usuario', '-senha');
     }
-
-    if (!reservas || reservas.length === 0) {
-      return res.status(404).json({ erro: 'Nenhuma reserva encontrada' });
+    
+if (!reservas || reservas.length === 0) {
+      return res.status(200).json([]);
     }
 
     res.status(200).json(reservas);
