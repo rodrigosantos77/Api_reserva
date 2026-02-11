@@ -66,10 +66,16 @@ const login = async (req, res) => {
     // 🔍 Aqui você vê o token no terminal:
     console.log('TOKEN GERADO:', token);
 
-    res.json({
-      token,
-      usuario: { nome: usuario.nome, tipo: usuario.tipo }
-    });
+   res.json({
+  token,
+  usuario: {
+    id: usuario._id,
+    nome: usuario.nome,
+    email: usuario.email,
+    tipoUsuario: usuario.tipoUsuario
+  }
+});
+
 
   } catch (err) {
     console.error(err);
