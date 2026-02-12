@@ -6,6 +6,10 @@ const reservaSchema = new mongoose.Schema({
     ref: 'Usuario',
     required: [true, 'O usuário é obrigatório']
   },
+ horarioEntrada: {         
+  type: String,
+  required: [true, 'O horário de entrada é obrigatório']
+},
   dataEntrada: {
     type: Date,
     required: [true, 'A data de entrada é obrigatória']
@@ -44,11 +48,7 @@ const reservaSchema = new mongoose.Schema({
     type: Boolean,
     required: [true, 'A informação sobre café da manhã é obrigatória']
   },
-  horarioEntrada: {
-  type: String,
-  required: [true, 'O horário de entrada é obrigatório']
-}
-
+ 
 });
-
+''
 module.exports = mongoose.model('Reserva', reservaSchema);
