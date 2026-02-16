@@ -11,7 +11,10 @@ const autorizaTipo = require('../middlewares/autorizaTipo'); // DEIXAR ATIVA
 // Rotas de Produção Descomentadas:
 router.post('/', auth, autorizaTipo(['cliente', 'atendente']), reservasController.criarReserva);
 router.get('/', auth, reservasController.listarReservas); 
-router.put('/:id', auth, autorizaTipo(['atendente']), reservasController.atualizarReserva);
+
+//Cancelar reserva deveria ser permitido para: cliente (cancelar a própria reserva) e atendente (cancelar qualquer reserva) 
+router.put('/:id', auth, autorizaTipo(['cliente', 'atendente']), reservasController.atualizarReserva);
+
 router.delete('/:id', auth, autorizaTipo(['atendente']), reservasController.deletarReserva);
 
 module.exports = router;
