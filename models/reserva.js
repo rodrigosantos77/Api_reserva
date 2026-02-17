@@ -1,53 +1,73 @@
-const mongoose = require('mongoose');
+
+const mongoose = require("mongoose");
 
 const reservaSchema = new mongoose.Schema({
   usuario: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Usuario',
-    required: [true, 'O usuário é obrigatório']
+    ref: "Usuario",
+    required: [true, "O usuário é obrigatório"],
   },
- horarioEntrada: {         
-  type: String,
-  required: [true, 'O horário de entrada é obrigatório']
-},
+
+  horarioEntrada: {
+    type: String,
+    required: [true, "O horário de entrada é obrigatório"],
+  },
+
   dataEntrada: {
     type: Date,
-    required: [true, 'A data de entrada é obrigatória']
+    required: [true, "A data de entrada é obrigatória"],
   },
+
   dataSaida: {
     type: Date,
-    required: [true, 'A data de saída é obrigatória']
+    required: [true, "A data de saída é obrigatória"],
   },
+
   numeroQuarto: {
     type: Number,
-    required: [true, 'O número do quarto é obrigatório']
+    required: [true, "O número do quarto é obrigatório"],
   },
+
+  // ✅ NOVO CAMPO
+  numeroPessoas: {
+    type: Number,
+    required: [true, "O número de pessoas é obrigatório"],
+    default: 1,
+    min: [1, "Deve ter pelo menos 1 pessoa"],
+    max: [4, "O máximo permitido é 4 pessoas"],
+  },
+
   status: {
     type: String,
-    enum: ['pendente', 'confirmada', 'cancelada'],
-    default: 'pendente',
-    required: [true, 'O status da reserva é obrigatório']
+    enum: ["pendente", "confirmada", "cancelada"],
+    default: "pendente",
+    required: [true, "O status da reserva é obrigatório"],
   },
+
   valor: {
     type: Number,
-    required: [true, 'O valor da reserva é obrigatório']
+    required: [true, "O valor da reserva é obrigatório"],
   },
+
   formaPagamento: {
     type: String,
-    required: [true, 'A forma de pagamento é obrigatória']
+    required: [true, "A forma de pagamento é obrigatória"],
   },
+
   numeroToalhas: {
     type: Number,
-    required: [true, 'O número de toalhas é obrigatório']
+    required: [true, "O número de toalhas é obrigatório"],
   },
+
   numeroLencois: {
     type: Number,
-    required: [true, 'O número de lençóis é obrigatório']
+    required: [true, "O número de lençóis é obrigatório"],
   },
+
   cafeDaManha: {
     type: Boolean,
-    required: [true, 'A informação sobre café da manhã é obrigatória']
+    required: [true, "A informação sobre café da manhã é obrigatória"],
   },
- 
 });
-module.exports = mongoose.model('Reserva', reservaSchema);
+
+module.exports = mongoose.model("Reserva", reservaSchema);
