@@ -20,11 +20,7 @@ const listarReservas = async (req, res, next) => {
       }).populate("usuario", "-senha");
     }
 
-    if (!reservas || reservas.length === 0) {
-      return res.status(200).json([]);
-    }
-
-    res.status(200).json(reservas);
+    return res.status(200).json(reservas || []);
   } catch (error) {
     next(error);
   }
@@ -48,6 +44,7 @@ const criarReserva = async (req, res) => {
     numeroPessoas,
   } = req.body;
 
+  // ✅ Campos obrigatórios
   const camposObrigatorios = [
     "dataEntrada",
     "dataSaida",
@@ -59,6 +56,7 @@ const criarReserva = async (req, res) => {
     "numeroLencois",
     "cafeDaManha",
     "horarioEntrada",
+    "numeroPessoas",
   ];
 
   const faltando = camposObrigatorios.filter((c) => req.body[c] == null);
@@ -71,12 +69,14 @@ const criarReserva = async (req, res) => {
   }
 
   try {
+    // ✅ Verifica usuário autenticado
     const usuarioExistente = await Usuario.findById(req.usuarioId);
 
     if (!usuarioExistente) {
       return res.status(404).json({ erro: "Usuário não encontrado" });
     }
 
+    // ✅ Cria reserva
     const novaReserva = new Reserva({
       usuario: req.usuarioId,
       dataEntrada,
@@ -89,10 +89,11 @@ const criarReserva = async (req, res) => {
       numeroLencois,
       cafeDaManha,
       horarioEntrada,
-      numeroPessoas: numeroPessoas || 1,
+      numeroPessoas,
     });
 
     const reservaSalva = await novaReserva.save();
+
     res.status(201).json(reservaSalva);
   } catch (error) {
     res.status(400).json({
@@ -103,12 +104,12 @@ const criarReserva = async (req, res) => {
 
 // ===============================
 // ✅ PUT - ATUALIZAR RESERVA
-// Cliente pode editar SOMENTE:
+// Cliente edita SOMENTE:
 // - dataEntrada
 // - dataSaida
 // - numeroPessoas
-// - cancelar status
-// Atendente pode editar tudo
+// - cancelar reserva
+// Atendente edita tudo
 // ===============================
 const atualizarReserva = async (req, res) => {
   try {
@@ -127,8 +128,7 @@ const atualizarReserva = async (req, res) => {
     }
 
     // ===============================
-    // ✅ SE FOR CLIENTE
-    // Só pode editar campos limitados
+    // ✅ CLIENTE (restrito)
     // ===============================
     if (req.usuarioTipo === "cliente") {
       if (req.body.dataEntrada)
@@ -137,18 +137,17 @@ const atualizarReserva = async (req, res) => {
       if (req.body.dataSaida)
         reserva.dataSaida = req.body.dataSaida;
 
-      if (req.body.numeroPessoas)
+      if (req.body.numeroPessoas != null)
         reserva.numeroPessoas = req.body.numeroPessoas;
 
-      // ✅ Cliente pode cancelar
+      // ✅ Cliente só pode CANCELAR
       if (req.body.status === "cancelada") {
         reserva.status = "cancelada";
       }
     }
 
     // ===============================
-    // ✅ SE FOR ATENDENTE
-    // Pode editar tudo
+    // ✅ ATENDENTE (total)
     // ===============================
     if (req.usuarioTipo === "atendente") {
       reserva.status = req.body.status || reserva.status;
@@ -180,7 +179,7 @@ const atualizarReserva = async (req, res) => {
         req.body.numeroPessoas || reserva.numeroPessoas;
     }
 
-    // ✅ Salvar no banco
+    // ✅ Salvar atualização
     const reservaAtualizada = await reserva.save();
 
     res.json({
