@@ -12,16 +12,17 @@ const authMiddleware = (req, res, next) => {
   console.log('🔐 Token recebido no middleware:', token);
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);// deve ser a mesma chave usada no login
-    console.log('✅ Token decodificado com sucesso:', decoded);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET); // mesma chave do login
+  console.log('✅ Token decodificado com sucesso:', decoded);
 
-    req.usuarioId = decoded.id;
-    req.usuarioTipo = decoded.tipo;
-    next(); // permite continuar para a rota protegida
-  } catch (err) {
-    console.log('❌ Erro ao verificar token:', err.message);
-    return res.status(401).json({ erro: 'Token inválido.' });
-  }
+  // 🔐 Armazena todas as informações do token em um único objeto
+  req.user = decoded;
+
+  next(); // permite continuar para a rota protegida
+} catch (err) {
+  console.log('❌ Erro ao verificar token:', err.message);
+  return res.status(401).json({ erro: 'Token inválido.' });
+}
 };
 
 module.exports = authMiddleware;

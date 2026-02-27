@@ -1,13 +1,16 @@
-// Esse middleware verifica se o tipo do usuário tem permissão de acesso à rota
-
-module.exports = function (tiposPermitidos) {
+// Middleware para autorizar tipos específicos de usuário
+module.exports = function autorizarTipo(...tiposPermitidos) {
   return (req, res, next) => {
-    const tipo = req.usuarioTipo; // pega o tipo do usuário que veio do token
-
-    if (!tiposPermitidos.includes(tipo)) {
-      return res.status(403).json({ erro: 'Acesso não autorizado' }); // bloqueia se o tipo não for permitido
+    // Verifica se o usuário existe no request
+    if (!req.user) {
+      return res.status(401).json({ erro: 'Usuário não autenticado.' });
     }
 
-    next(); // continua a execução se o tipo for autorizado
+    // Verifica se o tipo do usuário está entre os permitidos
+    if (!tiposPermitidos.includes(req.user.tipoUsuario)) {
+      return res.status(403).json({ erro: 'Acesso não autorizado.' });
+    }
+
+    next(); // autorizado
   };
 };

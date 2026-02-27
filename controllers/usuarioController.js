@@ -56,12 +56,15 @@ const login = async (req, res) => {
     if (!senhaValida) {
       return res.status(401).json({ erro: 'Senha inválida' });
     }
-
+    //correcao para evitar erros futuros e gerar o token JWT aqui:
     const token = jwt.sign(
-  { id: usuario._id, tipo: usuario.tipoUsuario }, // ← corrigido aqui!
+  { 
+    id: usuario._id, 
+    tipoUsuario: usuario.tipoUsuario 
+  },
   process.env.JWT_SECRET,
   { expiresIn: '1d' }
-  );
+);
 
     // 🔍 Aqui você vê o token no terminal:
     console.log('TOKEN GERADO:', token);

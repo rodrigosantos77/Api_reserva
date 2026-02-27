@@ -15,10 +15,11 @@ const usuarioSchema = new mongoose.Schema({
     required: [true, 'A senha é obrigatória']
   },
   tipoUsuario: {
-    type: String,
-    enum: ['cliente', 'atendente'],
-    required: [true, 'O tipo de usuário é obrigatório']
-  },
+  type: String,
+  enum: ['cliente', 'atendente'],
+  default: 'cliente',
+  required: true
+},
   telefone: {
     type: String,
     required: false
