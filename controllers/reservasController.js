@@ -1,5 +1,4 @@
 
-// controllers/reservasController.js
 const Reserva = require("../models/reserva");
 const Usuario = require("../models/usuario");
 
@@ -12,11 +11,11 @@ const listarReservas = async (req, res, next) => {
   try {
     let reservas;
 
-    if (req.usuarioTipo === "atendente") {
+    if (req.user.tipoUsuario === "atendente") {
       reservas = await Reserva.find().populate("usuario", "-senha");
     } else {
       reservas = await Reserva.find({
-        usuario: req.usuarioId,
+        usuario: req.user.id,
       }).populate("usuario", "-senha");
     }
 
@@ -44,7 +43,6 @@ const criarReserva = async (req, res) => {
     numeroPessoas,
   } = req.body;
 
-  // ✅ Campos obrigatórios
   const camposObrigatorios = [
     "dataEntrada",
     "dataSaida",
@@ -70,15 +68,14 @@ const criarReserva = async (req, res) => {
 
   try {
     // ✅ Verifica usuário autenticado
-    const usuarioExistente = await Usuario.findById(req.usuarioId);
+    const usuarioExistente = await Usuario.findById(req.user.id);
 
     if (!usuarioExistente) {
       return res.status(404).json({ erro: "Usuário não encontrado" });
     }
 
-    // ✅ Cria reserva
     const novaReserva = new Reserva({
-      usuario: req.usuarioId,
+      usuario: req.user.id,
       dataEntrada,
       dataSaida,
       numeroQuarto,
@@ -104,11 +101,7 @@ const criarReserva = async (req, res) => {
 
 // ===============================
 // ✅ PUT - ATUALIZAR RESERVA
-// Cliente edita SOMENTE:
-// - dataEntrada
-// - dataSaida
-// - numeroPessoas
-// - cancelar reserva
+// Cliente edita parcialmente
 // Atendente edita tudo
 // ===============================
 const atualizarReserva = async (req, res) => {
@@ -121,8 +114,8 @@ const atualizarReserva = async (req, res) => {
 
     // ✅ Cliente só pode editar a própria reserva
     if (
-      req.usuarioTipo === "cliente" &&
-      reserva.usuario.toString() !== req.usuarioId
+      req.user.tipoUsuario === "cliente" &&
+      reserva.usuario.toString() !== req.user.id
     ) {
       return res.status(403).json({ erro: "Acesso não autorizado." });
     }
@@ -130,7 +123,7 @@ const atualizarReserva = async (req, res) => {
     // ===============================
     // ✅ CLIENTE (restrito)
     // ===============================
-    if (req.usuarioTipo === "cliente") {
+    if (req.user.tipoUsuario === "cliente") {
       if (req.body.dataEntrada)
         reserva.dataEntrada = req.body.dataEntrada;
 
@@ -140,7 +133,6 @@ const atualizarReserva = async (req, res) => {
       if (req.body.numeroPessoas != null)
         reserva.numeroPessoas = req.body.numeroPessoas;
 
-      // ✅ Cliente só pode CANCELAR
       if (req.body.status === "cancelada") {
         reserva.status = "cancelada";
       }
@@ -149,17 +141,17 @@ const atualizarReserva = async (req, res) => {
     // ===============================
     // ✅ ATENDENTE (total)
     // ===============================
-    if (req.usuarioTipo === "atendente") {
-      reserva.status = req.body.status || reserva.status;
-      reserva.valor = req.body.valor || reserva.valor;
+    if (req.user.tipoUsuario === "atendente") {
+      reserva.status = req.body.status ?? reserva.status;
+      reserva.valor = req.body.valor ?? reserva.valor;
       reserva.formaPagamento =
-        req.body.formaPagamento || reserva.formaPagamento;
+        req.body.formaPagamento ?? reserva.formaPagamento;
 
       reserva.numeroToalhas =
-        req.body.numeroToalhas || reserva.numeroToalhas;
+        req.body.numeroToalhas ?? reserva.numeroToalhas;
 
       reserva.numeroLencois =
-        req.body.numeroLencois || reserva.numeroLencois;
+        req.body.numeroLencois ?? reserva.numeroLencois;
 
       reserva.cafeDaManha =
         req.body.cafeDaManha != null
@@ -167,19 +159,18 @@ const atualizarReserva = async (req, res) => {
           : reserva.cafeDaManha;
 
       reserva.horarioEntrada =
-        req.body.horarioEntrada || reserva.horarioEntrada;
+        req.body.horarioEntrada ?? reserva.horarioEntrada;
 
       reserva.dataEntrada =
-        req.body.dataEntrada || reserva.dataEntrada;
+        req.body.dataEntrada ?? reserva.dataEntrada;
 
       reserva.dataSaida =
-        req.body.dataSaida || reserva.dataSaida;
+        req.body.dataSaida ?? reserva.dataSaida;
 
       reserva.numeroPessoas =
-        req.body.numeroPessoas || reserva.numeroPessoas;
+        req.body.numeroPessoas ?? reserva.numeroPessoas;
     }
 
-    // ✅ Salvar atualização
     const reservaAtualizada = await reserva.save();
 
     res.json({
@@ -198,7 +189,7 @@ const atualizarReserva = async (req, res) => {
 // ===============================
 const deletarReserva = async (req, res) => {
   try {
-    if (req.usuarioTipo !== "atendente") {
+    if (req.user.tipoUsuario !== "atendente") {
       return res.status(403).json({
         erro: "Apenas atendentes podem deletar reservas.",
       });
@@ -216,7 +207,6 @@ const deletarReserva = async (req, res) => {
   }
 };
 
-// ===============================
 module.exports = {
   listarReservas,
   criarReserva,
