@@ -17,29 +17,39 @@ const listarUsuarios = async (req, res) => {
 };
 
 // Criar um novo usuário
+// Criar um novo usuário (SEMPRE cliente)
 const criarUsuario = async (req, res) => {
   console.log('REQ.BODY em criarUsuario:', req.body);
-  const { nome, email, senha, tipoUsuario } = req.body;
 
-  if (!nome || !email || !senha || !tipoUsuario) {
-    return res.status(400).json({ erro: 'Nome, email, senha e tipo de usuário são obrigatórios.' });
+  const { nome, email, senha } = req.body;
+
+  if (!nome || !email || !senha) {
+    return res.status(400).json({
+      erro: 'Nome, email e senha são obrigatórios.'
+    });
   }
 
   try {
     const senhaCriptografada = await bcrypt.hash(senha, 10);
+
     const novoUsuario = new Usuario({
       nome,
       email,
       senha: senhaCriptografada,
-      tipoUsuario // ✅ agora bate com o model
+      tipoUsuario: "cliente" // 🔒 FORÇADO
     });
 
     const usuarioSalvo = await novoUsuario.save();
-    res.status(201).json(usuarioSalvo);
-  }catch (error) {
-  console.error("Erro real ao salvar no banco:", error); // ADICIONAR ISSO
-  res.status(500).json({ erro: 'Erro ao criar usuário.' });
-}
+
+    res.status(201).json({
+      mensagem: "Usuário criado com sucesso!",
+      usuario: usuarioSalvo
+    });
+
+  } catch (error) {
+    console.error("Erro real ao salvar no banco:", error);
+    res.status(500).json({ erro: 'Erro ao criar usuário.' });
+  }
 };
 
 // Login com JWT

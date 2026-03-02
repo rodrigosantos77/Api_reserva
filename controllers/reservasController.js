@@ -28,6 +28,7 @@ const listarReservas = async (req, res, next) => {
 // ===============================
 // ✅ POST - CRIAR RESERVA
 // ===============================
+
 const criarReserva = async (req, res) => {
   const {
     dataEntrada,
@@ -43,12 +44,12 @@ const criarReserva = async (req, res) => {
     numeroPessoas,
   } = req.body;
 
+  // ❌ Removido "valor" dos obrigatórios
   const camposObrigatorios = [
     "dataEntrada",
     "dataSaida",
     "numeroQuarto",
     "status",
-    "valor",
     "formaPagamento",
     "numeroToalhas",
     "numeroLencois",
@@ -66,6 +67,17 @@ const criarReserva = async (req, res) => {
     });
   }
 
+  // ✅ Função para calcular dias
+  const calcularDias = (entrada, saida) => {
+    const data1 = new Date(entrada);
+    const data2 = new Date(saida);
+
+    const diffTime = data2 - data1;
+    const diffDias = diffTime / (1000 * 60 * 60 * 24);
+
+    return diffDias;
+  };
+
   try {
     // ✅ Verifica usuário autenticado
     const usuarioExistente = await Usuario.findById(req.user.id);
@@ -74,13 +86,70 @@ const criarReserva = async (req, res) => {
       return res.status(404).json({ erro: "Usuário não encontrado" });
     }
 
+    // ✅ Validação básica
+    if (numeroPessoas < 1) {
+      return res.status(400).json({
+        erro: "Número de pessoas deve ser pelo menos 1.",
+      });
+    }
+
+    const dias = calcularDias(dataEntrada, dataSaida);
+
+    if (dias <= 0) {
+      return res.status(400).json({
+        erro: "Data de saída deve ser posterior à data de entrada.",
+      });
+    }
+
+    let valorFinal;
+
+    // ===============================
+    // 👤 CLIENTE
+    // ===============================
+    if (req.user.tipoUsuario === "cliente") {
+
+      if (numeroPessoas > 4) {
+        return res.status(400).json({
+          erro: "Cliente só pode reservar até 4 pessoas.",
+        });
+      }
+
+      const valorDiaria = 100 + ((numeroPessoas - 1) * 20);
+      valorFinal = valorDiaria * dias;
+    }
+
+    // ===============================
+    // 🧑‍💼 ATENDENTE
+    // ===============================
+    if (req.user.tipoUsuario === "atendente") {
+
+      if (numeroPessoas > 6) {
+        return res.status(400).json({
+          erro: "Máximo permitido é 6 pessoas.",
+        });
+      }
+
+      if (numeroPessoas <= 4) {
+        const valorDiaria = 100 + ((numeroPessoas - 1) * 20);
+        valorFinal = valorDiaria * dias;
+      } else {
+        // 5 ou 6 pessoas → valor manual obrigatório
+        if (!valor) {
+          return res.status(400).json({
+            erro: "Para 5 ou 6 pessoas o valor deve ser informado.",
+          });
+        }
+        valorFinal = valor;
+      }
+    }
+
     const novaReserva = new Reserva({
       usuario: req.user.id,
       dataEntrada,
       dataSaida,
       numeroQuarto,
       status,
-      valor,
+      valor: valorFinal, // 🔒 valor vem do backend
       formaPagamento,
       numeroToalhas,
       numeroLencois,
@@ -92,13 +161,13 @@ const criarReserva = async (req, res) => {
     const reservaSalva = await novaReserva.save();
 
     res.status(201).json(reservaSalva);
+
   } catch (error) {
     res.status(400).json({
       erro: "Erro ao criar reserva. Verifique os dados.",
     });
   }
 };
-
 // ===============================
 // ✅ PUT - ATUALIZAR RESERVA
 // Cliente edita parcialmente
