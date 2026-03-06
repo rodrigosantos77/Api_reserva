@@ -26,6 +26,24 @@ const listarReservas = async (req, res, next) => {
 };
 
 // ===============================
+// 💰 Função para calcular valor da reserva
+// ===============================
+const calcularValorReserva = (numeroPessoas) => {
+
+  if (numeroPessoas === 1) return 100;
+  if (numeroPessoas === 2) return 120;
+  if (numeroPessoas === 3) return 140;
+  if (numeroPessoas === 4) return 150;
+
+  if (numeroPessoas > 4) {
+    const adicional = (numeroPessoas - 4) * 20;
+    return 150 + adicional;
+  }
+
+  return 100;
+};
+
+// ===============================
 // ✅ POST - CRIAR RESERVA
 // ===============================
 
@@ -100,6 +118,21 @@ const criarReserva = async (req, res) => {
         erro: "Data de saída deve ser posterior à data de entrada.",
       });
     }
+
+      // ===============================
+      // 🚫 Verificar conflito de reservas
+      // ===============================
+const conflitoReserva = await Reserva.findOne({
+  numeroQuarto: numeroQuarto,
+  dataEntrada: { $lt: dataSaida },
+  dataSaida: { $gt: dataEntrada },
+});
+
+if (conflitoReserva) {
+  return res.status(400).json({
+    erro: "Este quarto já está reservado para o período selecionado.",
+  });
+}
 
     let valorFinal;
 

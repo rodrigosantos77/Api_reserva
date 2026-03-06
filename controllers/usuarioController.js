@@ -45,7 +45,7 @@ const criarUsuario = async (req, res) => {
       mensagem: "Usuário criado com sucesso!",
       usuario: usuarioSalvo
     });
-
+m
   } catch (error) {
     console.error("Erro real ao salvar no banco:", error);
     res.status(500).json({ erro: 'Erro ao criar usuário.' });
