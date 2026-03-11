@@ -21,22 +21,23 @@ const listarUsuarios = async (req, res) => {
 const criarUsuario = async (req, res) => {
   console.log('REQ.BODY em criarUsuario:', req.body);
 
-  const { nome, email, senha } = req.body;
+  const { nome, email, senha, tipoUsuario } = req.body;
 
-  if (!nome || !email || !senha) {
+  if (!nome || !email || !senha || !tipoUsuario) {
     return res.status(400).json({
-      erro: 'Nome, email e senha são obrigatórios.'
+      erro: 'Nome, email, senha e tipo de usuário são obrigatórios.'
     });
   }
 
   try {
+
     const senhaCriptografada = await bcrypt.hash(senha, 10);
 
     const novoUsuario = new Usuario({
       nome,
       email,
       senha: senhaCriptografada,
-      tipoUsuario: "cliente" // 🔒 FORÇADO
+      tipoUsuario
     });
 
     const usuarioSalvo = await novoUsuario.save();
@@ -45,10 +46,15 @@ const criarUsuario = async (req, res) => {
       mensagem: "Usuário criado com sucesso!",
       usuario: usuarioSalvo
     });
-m
+
   } catch (error) {
+
     console.error("Erro real ao salvar no banco:", error);
-    res.status(500).json({ erro: 'Erro ao criar usuário.' });
+
+    res.status(500).json({
+      erro: 'Erro ao criar usuário.'
+    });
+
   }
 };
 
