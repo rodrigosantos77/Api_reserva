@@ -18,6 +18,12 @@ router.get(
   reservasController.listarReservas
 );
 
+router.get(
+  "/quartos-disponiveis",
+  auth,
+  reservasController.buscarQuartosDisponiveis
+);
+
 router.put(
   '/:id',
   auth,
