@@ -345,10 +345,102 @@ const deletarReserva = async (req, res) => {
   }
 };
 
+
+// ===============================
+// 🏨 REALIZAR CHECK-IN
+// ===============================
+const realizarCheckin = async (req, res) => {
+  try {
+
+    if (req.user.tipoUsuario !== "atendente") {
+      return res.status(403).json({
+        erro: "Apenas atendentes podem realizar check-in."
+      });
+    }
+
+    const reserva = await Reserva.findById(req.params.id);
+
+    if (!reserva) {
+      return res.status(404).json({
+        erro: "Reserva não encontrada."
+      });
+    }
+
+    if (reserva.status === "checkin") {
+      return res.status(400).json({
+        erro: "Check-in já realizado para esta reserva."
+      });
+    }
+
+    reserva.status = "checkin";
+
+    await reserva.save();
+
+    res.json({
+      mensagem: "Check-in realizado com sucesso!",
+      reserva
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      erro: "Erro ao realizar check-in"
+    });
+
+  }
+};
+
+// ===============================
+// 🏁 REALIZAR CHECK-OUT
+// ===============================
+const realizarCheckout = async (req, res) => {
+  try {
+
+    if (req.user.tipoUsuario !== "atendente") {
+      return res.status(403).json({
+        erro: "Apenas atendentes podem realizar check-out."
+      });
+    }
+
+    const reserva = await Reserva.findById(req.params.id);
+
+    if (!reserva) {
+      return res.status(404).json({
+        erro: "Reserva não encontrada."
+      });
+    }
+
+    if (reserva.status !== "checkin") {
+      return res.status(400).json({
+        erro: "Só é possível fazer checkout de reservas com check-in realizado."
+      });
+    }
+
+    reserva.status = "checkout";
+
+    await reserva.save();
+
+    res.json({
+      mensagem: "Check-out realizado com sucesso!",
+      reserva
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      erro: "Erro ao realizar check-out"
+    });
+
+  }
+};
+
+
 module.exports = {
   buscarQuartosDisponiveis,
   listarReservas,
   criarReserva,
   atualizarReserva,
   deletarReserva,
+  realizarCheckin,
+  realizarCheckout,
 };

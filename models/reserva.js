@@ -38,11 +38,17 @@ const reservaSchema = new mongoose.Schema({
   },
 
   status: {
-    type: String,
-    enum: ["pendente", "confirmada", "cancelada"],
-    default: "pendente",
-    required: [true, "O status da reserva é obrigatório"],
-  },
+  type: String,
+  enum: [
+    "pendente",
+    "confirmada",
+    "checkin",
+    "checkout",
+    "cancelada"
+  ],
+  default: "pendente",
+  required: [true, "O status da reserva é obrigatório"],
+},
 
   valor: {
     type: Number,

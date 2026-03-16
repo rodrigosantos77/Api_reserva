@@ -37,4 +37,18 @@ router.delete(
   autorizaTipo('atendente'),
   reservasController.deletarReserva
 );
+
+router.patch(
+  "/:id/checkin",
+  auth,
+  autorizaTipo("atendente"),
+  reservasController.realizarCheckin
+);
+
+router.patch(
+  "/:id/checkout",
+  auth,
+  autorizaTipo("atendente"),
+  reservasController.realizarCheckout
+);
 module.exports = router;
