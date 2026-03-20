@@ -435,6 +435,39 @@ const realizarCheckout = async (req, res) => {
 };
 
 
+// ===============================
+// 📊 OCUPAÇÃO DO HOTEL (HOJE)
+// ===============================
+const ocupacaoHoje = async (req, res) => {
+  try {
+
+    const hoje = new Date();
+
+    const reservasAtivas = await Reserva.find({
+      dataEntrada: { $lte: hoje },
+      dataSaida: { $gt: hoje },
+      status: { $ne: "cancelada" }
+    });
+
+    const quartosOcupados = reservasAtivas.length;
+    const totalQuartos = quartosHotel.length;
+    const quartosDisponiveis = totalQuartos - quartosOcupados;
+
+    res.json({
+      quartosOcupados,
+      quartosDisponiveis
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      erro: "Erro ao calcular ocupação do hotel"
+    });
+
+  }
+};
+
+
 module.exports = {
   buscarQuartosDisponiveis,
   listarReservas,
@@ -443,4 +476,5 @@ module.exports = {
   deletarReserva,
   realizarCheckin,
   realizarCheckout,
+  ocupacaoHoje,
 };

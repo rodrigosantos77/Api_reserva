@@ -51,4 +51,11 @@ router.patch(
   autorizaTipo("atendente"),
   reservasController.realizarCheckout
 );
+
+router.get(
+  "/ocupacao-hoje",
+  auth,
+  reservasController.ocupacaoHoje
+);
+
 module.exports = router;
