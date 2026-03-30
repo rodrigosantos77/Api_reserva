@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 
@@ -29,6 +30,13 @@ router.put(
   auth,
   autorizaTipo('cliente', 'atendente'),
   reservasController.atualizarReserva
+);
+
+router.patch(
+  '/:id/cancelar',
+  auth,
+  autorizaTipo('cliente', 'atendente'),
+  reservasController.cancelarReserva
 );
 
 router.delete(
