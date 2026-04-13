@@ -1,4 +1,3 @@
-
 const Reserva = require("../models/reserva");
 const Usuario = require("../models/usuario");
 const quartosHotel = require("../utils/quartosHotel");
@@ -213,7 +212,7 @@ const criarReserva = async (req, res) => {
         });
       }
 
-      const valorDiaria = calcularValorReserva(numeroPessoas);
+      const valorDiaria = calcularValorReserva(Number(numeroPessoas));
       valorFinal = valorDiaria * dias;
     }
 
@@ -225,7 +224,7 @@ const criarReserva = async (req, res) => {
       }
 
       if (numeroPessoas <= 4) {
-        const valorDiaria = calcularValorReserva(numeroPessoas);
+        const valorDiaria = calcularValorReserva(Number(numeroPessoas));
         valorFinal = valorDiaria * dias;
       } else {
         if (valor == null) {
@@ -234,7 +233,7 @@ const criarReserva = async (req, res) => {
           });
         }
 
-        valorFinal = valor;
+        valorFinal = Number(valor);
       }
     }
 
@@ -335,6 +334,9 @@ const atualizarReserva = async (req, res) => {
       reserva.dataSaida = novaDataSaida;
       reserva.numeroPessoas = novoNumeroPessoas;
 
+      const valorDiaria = calcularValorReserva(Number(novoNumeroPessoas));
+      reserva.valor = valorDiaria * dias;
+
       if (req.body.status === "cancelada") {
         reserva.status = "cancelada";
       }
@@ -381,20 +383,32 @@ const atualizarReserva = async (req, res) => {
         });
       }
 
-      if ((novoStatus === "checkin" || novoStatus === "checkout") && reserva.status !== novoStatus) {
+      if (
+        (novoStatus === "checkin" || novoStatus === "checkout") &&
+        reserva.status !== novoStatus
+      ) {
         return res.status(400).json({
           erro: "Use as rotas específicas de check-in e check-out para alterar esse status.",
         });
       }
 
-      if (novoNumeroPessoas > 4 && novoValor == null) {
-        return res.status(400).json({
-          erro: "Para 5 ou 6 pessoas o valor deve ser informado.",
-        });
+      let valorFinal;
+
+      if (novoNumeroPessoas <= 4) {
+        const valorDiaria = calcularValorReserva(Number(novoNumeroPessoas));
+        valorFinal = valorDiaria * dias;
+      } else {
+        if (novoValor == null) {
+          return res.status(400).json({
+            erro: "Para 5 ou 6 pessoas o valor deve ser informado.",
+          });
+        }
+
+        valorFinal = Number(novoValor);
       }
 
       reserva.status = novoStatus;
-      reserva.valor = novoValor;
+      reserva.valor = valorFinal;
       reserva.formaPagamento = req.body.formaPagamento ?? reserva.formaPagamento;
       reserva.numeroToalhas = req.body.numeroToalhas ?? reserva.numeroToalhas;
       reserva.numeroLencois = req.body.numeroLencois ?? reserva.numeroLencois;
